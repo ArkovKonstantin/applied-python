@@ -69,17 +69,17 @@ def process(data, events, car):
                     for train in data:
                         for car in train['cars']:
                             m += 1
-                            print('CHEK', n, m, walk, name)
+                            # print('CHEK', n, m, walk, name)
                             if n == m and walk and name == train['name']:
                                 car['people'].append(value)
-                                print('WALK', walk)
+                                # print('WALK', walk)
                                 walk = False
                                 # print('DATA', data)
                                 break
                 else:
                     return -1
                     # print('VALUE ', value, distance, name, n, walk)
-                    # print('DATA', data)
+            print('DATA', data)
 
 
 
@@ -87,33 +87,40 @@ def process(data, events, car):
 
         else:
             value = event.get('cars')
-            train_from = event['train_from']
-            train_to = event['train_to']
-            tail = []
-            flagfrom = False
-            # print('V', type(value))
-            newdata = []
-            for train in data:
-                if train['name'] == train_from:
-                    flagfrom = True
-                    for car in train['cars'][::-1]:
-                        # print('CARS', car)
-                        if value > 0:
-                            train['cars'].remove(car)
-                            value -= 1
-                            tail.append(car)
-            if not flagfrom:
-                return -1
-            # print('TAIL ', tail)
-            flagto = False
-            for train in data:
-                if train['name'] == train_to:
-                    dlagto = True
-                    # print('TRAINNAME ', train['name'])
-                    train['cars'].extend(reversed(tail))
+            if value > 0:
+                train_from = event['train_from']
+                train_to = event['train_to']
+                tail = []
+                # flagfrom = False
+                # print('V', type(value))
+                newdata = []
+                for train in data:
+                    if train['name'] == train_from:
+                        # flagfrom = True
+                        for car in train['cars'][::-1]:
+                            # print('CARS', car)
+                            if value > 0:
+                                train['cars'].remove(car)
+                                value -= 1
+                                tail.append(car)
 
-                    # print('DATA ', data)
-            # if not flag
+                                # if not flagfrom:
+                                # return -1
+                # print('TAIL ', tail)
+                # flagto = False
+                for train in data:
+                    if train['name'] == train_to:
+                        # dlagto = True
+                        # print('TRAINNAME ', train['name'])
+                        train['cars'].extend(reversed(tail))
+
+                print('DATA ', data)
+                # if not flagto:
+                # return -1
+            else:
+                return -1
+
+
 
     for train in data:
         for car in train['cars']:
