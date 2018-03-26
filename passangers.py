@@ -1,67 +1,31 @@
 # -*- encoding: utf-8 -*-
+from functions import *
 
 
 def process(data, events, car):
-    carname = car
+    car_name = car
     for event in events:
-        value = event.get('passenger')
-        if value is not None:
-            distance = event['distance'] - 1
-            walk = False
-            name = ''
-            num, n = 0, 0
-            for train in data:
-                for car in train['cars']:
-                    num += 1
-                    if walk and distance > 0:
-                        distance -= 1
-                        continue
-                    if walk and name == train['name'] and distance >= 0:
-                        car['people'].append(value)
-                        walk = False
-                        break
-                    for man in car['people']:
-                        if value == man:
-                            car['people'].remove(value)
-                            walk = True
-                            name = train['name']
-                            n = num
-                            break
-            if distance < 0:
-                m = 0
-                n = n + distance + 1
-                if n > 0:
-                    for train in data:
-                        for car in train['cars']:
-                            m += 1
-                            if n == m and walk and name == train['name']:
-                                car['people'].append(value)
-                                walk = False
-                                break
-                else:
-                    return -1
-            print('DATA', data)
-        else:
-            value = event.get('cars')
-            if value > 0:
-                train_from = event['train_from']
-                train_to = event['train_to']
-                tail = []
-                for train in data:
-                    if train['name'] == train_from:
-                        for car in train['cars'][::-1]:
-                            if value > 0:
-                                train['cars'].remove(car)
-                                value -= 1
-                                tail.append(car)
-                for train in data:
-                    if train['name'] == train_to:
-                        train['cars'].extend(reversed(tail))
+        # Определить тип события
 
-                print('DATA ', data)
-            else:
+        if event.get('type') == 'walk':
+            # Поиск пассажира
+
+            value = search_man(data, event)
+            if value == -1:
                 return -1
+            # Перемещение пассажира
+
+            if replace_man(data, event, value) == -1:
+                return -1
+        elif event.get('type') == 'switch':
+            # Перемещение вагонов
+
+            switch(data, event)
+        else:
+            return -1
+            # Проверка кол-ва пассажиров в вагоне
+
     for train in data:
         for car in train['cars']:
-            if car['name'] == carname:
+            if car_name == car['name']:
                 return len(car['people'])
